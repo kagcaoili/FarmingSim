@@ -6,7 +6,12 @@
 public class TileGenerator : MonoBehaviour {
 
     [SerializeField]
-    private Tile tile; // Holds the prefab tile
+    private Tile[] tiles; // Holds possible prefab tiles
+
+    /*
+    [SerializeField]
+    private GameObject[] details;
+    */
 
     public Vector2 size; // The size X and Y width and length of the terrain to create
 
@@ -18,9 +23,9 @@ public class TileGenerator : MonoBehaviour {
 	void Start ()
     {
         startPosition = new Vector3(-(size.x / 2.0f), 0.0f, -(size.y / 2.0f)); // Shifts the starting position to the negative area by half the size of the terrain
-        if (tile)
+        if (tiles[0])
         {
-            tileRadius = tile.gameObject.transform.localScale.x / 2.0f;
+            tileRadius = tiles[0].gameObject.transform.localScale.x / 2.0f;
             CreateTerrain();
         } else
         {
@@ -45,9 +50,17 @@ public class TileGenerator : MonoBehaviour {
             for (int currWidTile = 0; currWidTile < width; currWidTile++)
             {
                 currPosition = new Vector3(startPosition.x + currLenTile + tileRadius, startPosition.y, startPosition.z + currWidTile + tileRadius);
-                GameObject newTile = GameObject.Instantiate(tile.gameObject, currPosition, Quaternion.identity);
+                GameObject newTile = GameObject.Instantiate(RandomizeTile(), currPosition, Quaternion.identity);
                 newTile.transform.parent = gameObject.transform;
             }
         }
+    }
+
+    private GameObject RandomizeTile()
+    {
+        Debug.Log("tiles length is: " + tiles.Length);
+        int tileNum = Random.Range(0, tiles.Length);
+        Debug.Log("Returning number: " + tileNum);
+        return tiles[tileNum].gameObject;
     }
 }
