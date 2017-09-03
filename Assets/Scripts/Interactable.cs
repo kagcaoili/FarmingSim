@@ -8,38 +8,60 @@ public class Interactable : MonoBehaviour {
     private Color highlightColor = Color.yellow;
 
     protected bool isInContact = false;
+    
+    protected SteamVR_TrackedController usedController;
 
     protected virtual void Start()
     {
         originalColor = gameObject.GetComponentInChildren<MeshRenderer>().material.color;
-        Debug.Log("OriginalColor is : " + originalColor);
     }
 
     public virtual void OnTriggerStay(Collider col)
     {
         if (!isInContact)
         {
-            Highlight();
-        }
+            if (CheckIfController(col.gameObject))
+            {
+                isInContact = true;
+                Highlight();
+            }
+        }    
     }
 
     public virtual void OnTriggerExit(Collider col)
     {
         if (isInContact)
         {
-            UnHighlight();
+            if (CheckIfController(col.gameObject))
+            {
+                isInContact = false;
+                UnHighlight();
+            }
         }
     }
 
-    private void Highlight()
+    protected virtual bool CheckIfController(GameObject obj)
     {
-        isInContact = true;
+        SteamVR_TrackedController[] controllers = Manager.instance.GetComponentInChildren<CameraManager>().GetControllers();
+
+        for (int i = 0; i < controllers.Length; i++)
+        {
+            if (obj == controllers[i].gameObject)
+            {
+                usedController = controllers[i];
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected virtual void Highlight()
+    {
         gameObject.GetComponentInChildren<MeshRenderer>().material.SetColor("_Color", highlightColor);
     }
 
-    private void UnHighlight()
+    protected virtual void UnHighlight()
     {
-        isInContact = false;
         gameObject.GetComponentInChildren<MeshRenderer>().material.SetColor("_Color", originalColor);
     }
 
